@@ -1,0 +1,21 @@
+== Office LED lights - HS103(US) ==
+	Host: 192.168.1.245
+	Device state: OFF
+
+	== Generic information ==
+	Time:         2022-10-30 19:05:34 (tz: {'index': 13, 'err_code': 0}
+	Hardware:     5.0
+	Software:     1.0.3 Build 201015 Rel.142523
+	MAC (rssi):   6C:5A:B0:BC:40:23 (-40)
+	Location:     {'latitude': 44.9305, 'longitude': -92.9119}
+
+	== Device specific information ==
+	LED state: True
+	On since: None
+
+	== Modules ==
+	+ <Module Schedule (schedule) for 192.168.1.245>
+	+ <Module Usage (schedule) for 192.168.1.245>
+	+ <Module Antitheft (anti_theft) for 192.168.1.245>
+	+ <Module Time (time) for 192.168.1.245>
+	+ <Module Cloud (cnCloud) for 192.168.1.245>
