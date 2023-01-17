@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.8.15
 #FROM python:3.9
 #FROM python:slim
 
@@ -36,6 +36,4 @@ RUN pipenv install --system --deploy
 EXPOSE 5000
 ENTRYPOINT ["/usr/src/restapp/bootstrap.sh"]
 
-
-# run entrypoint.sh
-#ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+#harbor.freshbrewed.science/freshbrewedprivate/kasarest:1.1.5
