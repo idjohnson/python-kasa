@@ -36,4 +36,4 @@ RUN pipenv install --system --deploy
 EXPOSE 5000
 ENTRYPOINT ["/usr/src/restapp/bootstrap.sh"]
 
-#harbor.freshbrewed.science/freshbrewedprivate/kasarest:1.1.5
+#harbor.freshbrewed.science/freshbrewedprivate/kasarest:1.1.6
