@@ -10,9 +10,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(".."))  # Will find modules in the docs parent
 
 
 # -- Project information -----------------------------------------------------
@@ -33,6 +34,11 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.todo",
     "sphinxcontrib.programoutput",
+    "myst_parser",
+]
+
+myst_enable_extensions = [
+    "colon_fence",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -57,17 +63,9 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
 todo_include_todos = True
+myst_heading_anchors = 3
 
 
-def setup(app):
+def setup(app):  # noqa: ANN201,ANN001
     # add copybutton to hide the >>> prompts, see https://github.com/readthedocs/sphinx_rtd_theme/issues/167
     app.add_js_file("copybutton.js")
-
-    # see https://github.com/readthedocs/recommonmark/issues/191#issuecomment-622369992
-    from m2r import MdInclude
-
-    app.add_config_value("no_underscore_emphasis", False, "env")
-    app.add_config_value("m2r_parse_relative_links", False, "env")
-    app.add_config_value("m2r_anonymous_references", False, "env")
-    app.add_config_value("m2r_disable_inline_math", False, "env")
-    app.add_directive("mdinclude", MdInclude)

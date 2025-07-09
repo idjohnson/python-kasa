@@ -7,6 +7,11 @@ To see what is being sent to and received from the device, specify option ``--de
 
 To avoid discovering the devices when executing commands its type can be passed as an option (e.g., ``--type plug`` for plugs, ``--type bulb`` for bulbs, ..).
 If no type is manually given, its type will be discovered automatically which causes a short delay.
+Note that the ``--type`` parameter only works for legacy devices using port 9999.
+
+To avoid discovering the devices for newer KASA or TAPO devices using port 20002 for discovery the ``--device-family``, ``-encrypt-type`` and optional
+``-login-version`` options can be passed and the devices will probably require authentication via ``--username`` and ``--password``.
+Refer to ``kasa --help`` for detailed usage.
 
 If no command is given, the ``state`` command will be executed to query the device state.
 
@@ -16,6 +21,23 @@ If no command is given, the ``state`` command will be executed to query the devi
     which you can find by adding ``--help`` after the command, e.g. ``kasa --type emeter --help`` or ``kasa --type hsv --help``.
     Refer to the device type specific documentation for more details.
 
+Discovery
+*********
+
+The tool can automatically discover supported devices using a broadcast-based discovery protocol.
+This works by sending an UDP datagram on ports 9999 and 20002 to the broadcast address (defaulting to ``255.255.255.255``).
+
+Newer devices that respond on port 20002 will require TP-Link cloud credentials to be passed (unless they have never been connected
+to the TP-Link cloud) or they will report as having failed authentication when trying to query the device.
+Use ``--username`` and ``--password`` options to specify credentials.
+These values can also be set as environment variables via ``KASA_USERNAME`` and ``KASA_PASSWORD``.
+
+On multihomed systems, you can use ``--target`` option to specify the broadcast target.
+For example, if your devices reside in network ``10.0.0.0/24`` you can use ``kasa --target 10.0.0.255 discover`` to discover them.
+
+.. note::
+
+    When no command is specified when invoking ``kasa``, a discovery is performed and the ``state`` command is executed on each discovered device.
 
 Provisioning
 ************
@@ -28,6 +50,26 @@ You can provision your device without any extra apps by using the ``kasa wifi`` 
 4. Join/change the network using ``kasa --host 192.168.0.1 wifi join <network to join>``
 
 As with all other commands, you can also pass ``--help`` to both ``join`` and ``scan`` commands to see the available options.
+
+.. note::
+
+    For devices requiring authentication, the device-stored credentials can be changed using
+    the ``update-credentials`` commands, for example, to match with other cloud-connected devices.
+    However, note that communications with devices provisioned using this method will stop working
+    when connected to the cloud.
+
+.. note::
+
+    Some commands do not work if the device time is out-of-sync.
+    You can use ``kasa time sync`` command to set the device time from the system where the command is run.
+
+.. warning::
+
+    At least some devices (e.g., Tapo lights L530 and L900) are known to have a watchdog that reboots them every 10 minutes if they are unable to connect to the cloud.
+    Although the communications are done locally, this will make these devices unavailable for a minute every time the device restarts.
+    This does not affect other devices to our current knowledge, but you have been warned.
+
+
 
 ``kasa --help``
 ***************
