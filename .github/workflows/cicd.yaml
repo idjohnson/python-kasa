@@ -1,0 +1,47 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DH_LOGIN }}
+          password: ${{ secrets.DH_PAT }}
+
+      - name: Login to Harbor
+        uses: docker/login-action@v2
+        with:
+          registry: harbor.freshbrewed.science
+          username: ${{ secrets.CR_USER }}
+          password: ${{ secrets.CR_PAT }}
+
+      - name: Extract tag and image name
+        id: extract
+        run: |
+          tag=$(grep -oE ':[0-9.]+'$ Dockerfile | cut -c 2-)
+          image_name=$(tail -n 1 Dockerfile | cut -c 2-)
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "image_name=$image_name" >> $GITHUB_OUTPUT
+
+      - name: Build and push to Docker Hub
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: idjohnson/kasarest:${{ steps.extract.outputs.tag }}
+
+      - name: Build and push to Harbor
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.extract.outputs.image_name }}

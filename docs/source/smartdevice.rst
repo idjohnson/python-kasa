@@ -1,7 +1,7 @@
-.. py:module:: kasa
+.. py:currentmodule:: kasa
 
-Common API
-==========
+Base Device
+===========
 
 .. contents:: Contents
    :local:
@@ -13,7 +13,7 @@ The basic functionalities of all supported devices are accessible using the comm
 
 The property accesses use the data obtained before by awaiting :func:`SmartDevice.update()`.
 The values are cached until the next update call. In practice this means that property accesses do no I/O and are dependent, while I/O producing methods need to be awaited.
-See :ref:`library_design` for more detailed information.
+See :ref:`topics-update-cycle` for more detailed information.
 
 .. note::
     The device instances share the communication socket in background to optimize I/O accesses.

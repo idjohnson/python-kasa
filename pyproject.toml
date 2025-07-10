@@ -1,90 +1,198 @@
-[tool.poetry]
+[project]
 name = "python-kasa"
-version = "0.5.0"
-description = "Python API for TP-Link Kasa Smarthome devices"
-license = "GPL-3.0-or-later"
-authors = ["Your Name <you@example.com>"]
-repository = "https://github.com/python-kasa/python-kasa"
+version = "0.10.2"
+description = "Python API for TP-Link Kasa and Tapo devices"
+license = {text = "GPL-3.0-or-later"}
+authors = [ { name = "python-kasa developers" }]
 readme = "README.md"
-packages = [
-  { include = "kasa" }
+requires-python = ">=3.11,<4.0"
+dependencies = [
+  "asyncclick>=8.1.7",
+  "cryptography>=1.9",
+  "aiohttp>=3",
+  "tzdata>=2024.2 ; platform_system == 'Windows'",
+  "mashumaro>=3.14",
+  "fastapi",
+  "uvicorn",
 ]
-include = ["CHANGELOG.md"]
 
-[tool.poetry.scripts]
-kasa = "kasa.cli:cli"
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 
-[tool.poetry.dependencies]
-python = "^3.7"
-anyio = "*"  # see https://github.com/python-trio/asyncclick/issues/18
-importlib-metadata = "*"
-asyncclick = ">=8"
-pydantic = "^1"
+[project.optional-dependencies]
+speedups = ["orjson>=3.9.1", "kasa-crypt>=0.2.0"]
+docs = [
+    "sphinx_rtd_theme~=2.0",
+    "sphinxcontrib-programoutput~=0.0",
+    "myst-parser",
+    "docutils>=0.17",
+    "sphinx>=7.4.7",
+]
+shell = ["ptpython", "rich"]
 
-# required only for docs
-sphinx = { version = "^4", optional = true }
-m2r = { version = "^0", optional = true }
-mistune = { version = "<2.0.0", optional = true }
-sphinx_rtd_theme = { version = "^0", optional = true }
-sphinxcontrib-programoutput = { version = "^0", optional = true }
+[project.urls]
+"Homepage" = "https://github.com/python-kasa/python-kasa"
+"Bug Tracker" = "https://github.com/python-kasa/python-kasa/issues"
+"Documentation" = "https://python-kasa.readthedocs.io"
+"Repository" = "https://github.com/python-kasa/python-kasa"
 
-[tool.poetry.dev-dependencies]
-pytest = ">=6.2.5"
-pytest-cov = "^2"
-pytest-asyncio = "^0"
-pytest-sugar = "*"
-pre-commit = "*"
-voluptuous = "*"
-toml = "*"
-tox = "*"
-pytest-mock = "^3"
-codecov = "^2"
-xdoctest = "^0"
-coverage = {version = "^6", extras = ["toml"]}
+[project.scripts]
+kasa = "kasa.cli.__main__:cli"
 
-[tool.poetry.extras]
-docs = ["sphinx", "sphinx_rtd_theme", "m2r", "mistune", "sphinxcontrib-programoutput"]
+[tool.uv]
+dev-dependencies = [
+  "pytest",
+  "pytest-cov",
+  "pytest-asyncio",
+  "pytest-sugar",
+  "pre-commit",
+  "voluptuous",
+  "toml",
+  "pytest-mock",
+  "codecov",
+  "xdoctest>=1.2.0",
+  "coverage[toml]",
+  "pytest-timeout~=2.0",
+  "pytest-freezer~=0.4",
+  "mypy~=1.0",
+  "pytest-xdist>=3.6.1",
+  "pytest-socket>=0.7.0",
+  "ruff>=0.9.0",
+]
 
 
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-line_length = 88
-known_first_party = "kasa"
-known_third_party = ["asyncclick", "pytest", "setuptools", "voluptuous"]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/kasa",
+  "/devtools",
+  "/docs",
+  "/tests",
+  "/CHANGELOG.md",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+  "/kasa",
+]
 
 [tool.coverage.run]
 source = ["kasa"]
 branch = true
-omit = ["kasa/tests/*"]
 
 [tool.coverage.report]
 exclude_lines = [
-  # ignore abstract methods
+  # ignore debug logging
+  "if debug_enabled:",
+  # Don't complain if tests don't hit defensive assertion code:
+  "raise AssertionError",
   "raise NotImplementedError",
-  "def __repr__"
+  # Don't complain about missing debug-only code:
+  "def __repr__",
+  # Have to re-enable the standard pragma
+  "pragma: no cover",
+  # TYPE_CHECKING and @overload blocks are never executed during pytest run
+  "if TYPE_CHECKING:",
+  "@overload"
 ]
 
-[tool.interrogate]
-ignore-init-method = true
-ignore-magic = true
-ignore-private = true
-ignore-semiprivate = true
-fail-under = 100
-exclude = ['kasa/tests/*']
-verbose = 2
-
 [tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
 markers = [
     "requires_dummy: test requires dummy data to pass, skipped on real devices",
 ]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+#timeout = 10
+# dist=loadgroup enables grouping of tests into single worker.
+# required as caplog doesn't play nicely with multiple workers.
+addopts = "--disable-socket --allow-unix-socket --dist=loadgroup"
 
 [tool.doc8]
 paths = ["docs"]
 ignore = ["D001"]
+ignore-path-errors = ["docs/source/index.rst;D000"]
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+  "E",  # pycodestyle errors
+  "W", # pycodestyle warnings
+  "D",  # pydocstyle
+  "F",  # pyflakes
+  "UP",  # pyupgrade
+  "B",  # flake8-bugbear
+  "SIM",  # flake8-simplify
+  "FA", # flake8-future-annotations
+  "I",  # isort
+  "S",  # bandit
+  "PT",  # flake8-pytest-style
+  "LOG",  # flake8-logging
+  "G",  # flake8-logging-format
+  "ANN",  # annotations
+]
+ignore = [
+  "D105",  # Missing docstring in magic method
+  "D107",  # Missing docstring in `__init__`
+  "ANN003",  # Missing type annotation for `**kwargs`
+  "ANN401",  # allow any
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "S101", # allow asserts
+    "E501", # ignore line-too-longs
+    "ANN", # skip for now
+]
+"docs/source/conf.py" = [
+    "D100",
+    "D103",
+]
+# Temporary ANN disable
+"kasa/cli/*.py" = [
+    "ANN",
+]
+# Temporary ANN disable
+"devtools/*.py" = [
+    "ANN",
+]
+
+
+[tool.mypy]
+warn_unused_configs = true  # warns if overrides sections unused/mis-spelled
+
+[[tool.mypy.overrides]]
+module = [ "kasa.tests.*", "devtools.*" ]
+disable_error_code = "annotation-unchecked"
+
+[[tool.mypy.overrides]]
+module = [
+    "devtools.bench.benchmark",
+    "devtools.parse_pcap",
+    "devtools.parse_pcap_klap",
+    "devtools.perftest",
+    "devtools.create_module_fixtures"
+]
+disable_error_code = "import-not-found,import-untyped"
