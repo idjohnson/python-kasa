@@ -166,6 +166,55 @@ You can find several code examples in the API documentation [How to guides](http
 
 Information about the library design and the way the devices work can be found in the [topics section](https://python-kasa.readthedocs.io/en/latest/topics.html).
 
+## Docker FastAPI Server
+
+A FastAPI web server is available that provides RESTful API endpoints for controlling Kasa devices. The server includes automatic OpenAPI (Swagger) documentation and requires API key authentication.
+
+### Building the Docker image
+
+```bash
+docker build -t python-kasa-api .
+```
+
+### Running the container
+
+```bash
+docker run -d -p 8000:8000 -e API_KEY=your_secret_api_key python-kasa-api
+```
+
+**Important**: Replace `your_secret_api_key` with a secure API key of your choice. This key will be required for all API requests.
+
+### API Documentation
+
+Once the container is running, you can access the interactive API documentation at:
+
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+### Available Endpoints
+
+- `GET /health` - Health check endpoint (no authentication required)
+- `POST /on` - Turn device on
+- `POST /off` - Turn device off  
+- `POST /swap` - Toggle device state
+
+All control endpoints require:
+- `devip`: Device IP address
+- `type`: Device type (default: "plug")
+- `apikey`: Your API key for authentication
+
+### Example Usage
+
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Turn on a device (requires API key)
+curl -X POST "http://localhost:8000/on" \
+  -H "Content-Type: application/json" \
+  -d '{"devip": "192.168.1.100", "type": "plug", "apikey": "your_secret_api_key"}'
+```
+
 ## Contributing
 
 Contributions are very welcome! The easiest way to contribute is by [creating a fixture file](https://python-kasa.readthedocs.io/en/latest/contribute.html#contributing-fixture-files) for the automated test suite if your device hardware and firmware version is not currently listed as supported.

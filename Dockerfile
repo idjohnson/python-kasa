@@ -18,3 +18,4 @@ USER appuser
 # Expose port and start the application
 EXPOSE 8000
 CMD ["uvicorn", "kasa_fastapi.main:app", "--host", "0.0.0.0", "--port", "8000"]
+#harbor.freshbrewed.science/freshbrewedprivate/kasarest:2.0.0
