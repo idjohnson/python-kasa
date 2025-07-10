@@ -1,41 +1,20 @@
-FROM python:3.8
-#FROM python:3.9
-#FROM python:slim
+# Using lightweight python image
+FROM python:3.11-slim
 
-# Keeps Python from generating .pyc files in the container
-ENV PYTHONDONTWRITEBYTECODE 1
-# Turns off buffering for easier container logging
-ENV PYTHONUNBUFFERED 1
+# Install uv
+RUN pip install uv
 
-# Install and setup poetry
-RUN pip install -U pip \
-    && apt-get update \
-    && apt install -y curl netcat \
-    && curl -sSL https://install.python-poetry.org | python3 -
-ENV PATH="${PATH}:/root/.local/bin"
+# Set up a non-root user
+RUN useradd --create-home appuser
+WORKDIR /home/appuser/app
 
-WORKDIR /usr/src/app
+# Copy application and install dependencies
 COPY . .
-RUN poetry config virtualenvs.create false \
-  && poetry install --no-interaction --no-ansi
+RUN uv pip install --system . fastapi uvicorn
 
-RUN pip install Flask
-RUN pip install pipenv
+# Switch to non-root user
+USER appuser
 
-# Adding new REST App
-WORKDIR /usr/src/restapp
-COPY ./cashman-flask-project/some.sh ./cashman-flask-project/swap.sh ./cashman-flask-project/Pipfile ./cashman-flask-project/Pipfile.lock ./cashman-flask-project/bootstrap.sh ./
-COPY ./cashman-flask-project/restapi ./restapi
-
-# Install API dependencies
-RUN pip install pipenv --upgrade
-RUN pipenv lock
-RUN pipenv install --system --deploy
-
-# Start app
-EXPOSE 5000
-ENTRYPOINT ["/usr/src/restapp/bootstrap.sh"]
-
-
-# run entrypoint.sh
-#ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+# Expose port and start the application
+EXPOSE 8000
+CMD ["uvicorn", "kasa_fastapi.main:app", "--host", "0.0.0.0", "--port", "8000"]
