@@ -28,14 +28,17 @@ def run_kasa_command(command: list[str]):
 def health_check():
     return {"status": "ok"}
 
+@app.get("/on")
 @app.post("/on")
 def turn_on(devip: str, type: str = "plug", apikey: str = Depends(api_key_auth)):
     return {"output": run_kasa_command(["--host", devip, "--type", type, "on"])}
 
+@app.get("/off")
 @app.post("/off")
 def turn_off(devip: str, type: str = "plug", apikey: str = Depends(api_key_auth)):
     return {"output": run_kasa_command(["--host", devip, "--type", type, "off"])}
 
+@app.get("/swap")
 @app.post("/swap")
 def swap(devip: str, type: str = "plug", apikey: str = Depends(api_key_auth)):
     state_output = run_kasa_command(["--host", devip, "--type", type, "state"])
