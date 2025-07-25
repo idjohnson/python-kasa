@@ -5,10 +5,11 @@
 replicaCount: 1
 
 image:
-  repository: harbor.freshbrewed.science/freshbrewedprivate/kasarest
+  repository: idjohnson/kasarest
+  #repository: harbor.freshbrewed.science/freshbrewedprivate/kasarest
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: 1.1.0
+  tag: 2.0.1
 
 apikey: "55555"
 
@@ -43,7 +44,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 5000
+  port: 8000
 
 ingress:
   enabled: true

@@ -34,17 +34,17 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
+            - name: httpkasa
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /health
+              port: httpkasa
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /health
+              port: httpkasa
           env:
           - name: PORT
             value: "{{ .Values.service.port }}"
